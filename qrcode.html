@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Code Generator</title>
+  <link rel="icon" href="https://user-images.githubusercontent.com/5676848/39757495-4e5e5cce-52cd-11e8-8360-9c1ebd37d4d4.png" type="image/png">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #fff;
+    }
+    .container {
+      background-color: #333;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    input {
+      width: 300px;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #444;
+      background-color: #222;
+      color: #fff;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #qrcode {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #downloadLink {
+      display: none;
+      color: #fff;
+      font-weight: bold;
+      text-decoration: none;
+      margin-top: 10px;
+      display: inline-block;
+    }
+    #downloadLink:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>QR Code Generator</h1>
+    <input type="text" id="inputLink" placeholder="Enter your link here">
+    <button onclick="generateQRCode()">Generate QR Code</button>
+    <div id="qrcode"></div>
+    <a id="downloadLink" href="#" download="qrcode.png">Download QR Code</a>
+  </div>
+
+  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+  <script>
+    function generateQRCode() {
+      const inputLink = document.getElementById('inputLink').value.trim();
+      if (inputLink === '') {
+        alert('Please enter a valid link.');
+        return;
+      }
+
+      const qrcodeDiv = document.getElementById('qrcode');
+      qrcodeDiv.innerHTML = '';
+
+      const qrcode = new QRCode(qrcodeDiv, {
+        text: inputLink,
+        width: 256,
+        height: 256,
+        colorDark: "#fff",
+        colorLight: "#000"
+      });
+
+      const downloadLink = document.getElementById('downloadLink');
+      const qrImage = qrcodeDiv.querySelector('img');
+      if (qrImage) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = qrImage.width;
+        canvas.height = qrImage.height;
+        ctx.drawImage(qrImage, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < imageData.data.length; i += 4) {
+          imageData.data[i] = 255 - imageData.data[i];
+          imageData.data[i + 1] = 255 - imageData.data[i + 1];
+          imageData.data[i + 2] = 255 - imageData.data[i + 2];
+        }
+        ctx.putImageData(imageData, 0, 0);
+        downloadLink.href = canvas.toDataURL('image/png');
+        downloadLink.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>
